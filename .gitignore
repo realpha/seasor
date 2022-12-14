@@ -1,0 +1,8 @@
+/.vim
+/.idea
+/.vscode
+
+**/*.log
+
+**/.npmrc
+**/.env
