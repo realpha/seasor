@@ -42,7 +42,7 @@ export function generateHasIdElement() {
     {
       id: fc.nat(),
     },
-    { requiredKeys: ["id"] },
+    { requiredKeys: ["id"] }
   );
 }
 
@@ -66,7 +66,7 @@ export function orderByIdComperator(a: HasId, b: HasId): Ordering {
 
 function setupBinarySearch<T>(
   arr: Array<T>,
-  comperator: BoundComparator<T>,
+  comperator: BoundComparator<T>
 ): () => void {
   return () => {
     binarySearchBy<T>(comperator)(arr);
@@ -75,7 +75,7 @@ function setupBinarySearch<T>(
 
 function setupLinearSearch<T>(
   arr: Array<T>,
-  comperator: (v: T) => boolean,
+  comperator: (v: T) => boolean
 ): () => void {
   return () => {
     arr.find(comperator);
@@ -106,7 +106,7 @@ function generateSearchSetup(arr: Array<HasId>, lookUpValue: number) {
   return {
     binarySearch: setupBinarySearch<HasId>(
       arr,
-      getIsEqualIdComperator(lookUpValue),
+      getIsEqualIdComperator(lookUpValue)
     ),
     linearSearch: setupLinearSearch<HasId>(arr, isEqualIdFactory(lookUpValue)),
   };
