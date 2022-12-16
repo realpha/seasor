@@ -44,7 +44,7 @@ export function generateEntity() {
     {
       id: fc.nat(),
     },
-    { requiredKeys: ["id"] }
+    { requiredKeys: ["id"] },
   );
 }
 

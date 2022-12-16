@@ -1,15 +1,15 @@
 import {
   binarySearch,
   BoundComparator,
-  Comparator,
   BoundPredicate,
+  Comparator,
 } from "../mod.ts";
 import { BinarySearchTree } from "../_test_utils/deps.ts";
 import {
   ascendingById,
   HasId,
-  isEqualIdFactory,
   idComparatorFactory,
+  isEqualIdFactory,
 } from "../_test_utils/mod.ts";
 
 /**
