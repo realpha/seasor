@@ -1,11 +1,11 @@
 import {
+  ascendingById,
   fc,
   generateArray,
   generateEntity,
   HasId,
-  isEqualIdFactory,
   idComparatorFactory,
-  ascendingById,
+  isEqualIdFactory,
 } from "../_test_utils/mod.ts";
 import { binarySearch } from "./mod.ts";
 
