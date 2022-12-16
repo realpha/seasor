@@ -1,89 +1,20 @@
 import {
-  binarySearchBy,
-  Ordering,
+  binarySearch,
   BoundComparator,
   Comparator,
   BoundPredicate,
 } from "../mod.ts";
 import { BinarySearchTree } from "../_test_utils/deps.ts";
-import { orderByIdComperator } from "../_test_utils/mod.ts";
+import {
+  ascendingById,
+  HasId,
+  isEqualIdFactory,
+  idComparatorFactory,
+} from "../_test_utils/mod.ts";
 
-interface HasId {
-  id: number;
-}
-
-function getSimpelComperator(n: number) {
-  return ({ id }: HasId) => id === n;
-}
-
-function getComperator(n: number) {
-  return ({ id }: HasId) => {
-    if (id < n) return Ordering.Less;
-    if (id > n) return Ordering.Greater;
-    return Ordering.Equal;
-  };
-}
-
-function setupBinarySearch<T>(
-  arr: Array<T>,
-  comperator: BoundComparator<T>
-): () => void {
-  return () => {
-    binarySearchBy<T>(comperator)(arr);
-  };
-}
-
-function setupLinearSearch<T>(
-  arr: Array<T>,
-  predicate: BoundPredicate<T>
-): () => void {
-  return () => {
-    arr.find(predicate);
-  };
-}
-
-function setupBinaryTreeSearch<T>(
-  arr: Array<T>,
-  comparator: Comparator<T>,
-  value: T
-): () => void {
-  const tree = BinarySearchTree.from<T>(arr, { compare: comparator });
-  return () => {
-    tree.find(value);
-  };
-}
-
-function generateRandomSortedArray(len: number): Array<HasId> {
-  return (
-    Array(len)
-      .fill(1)
-      .map((v, i) => ({ id: Math.floor(Math.random() * 10) * (i + v) }))
-      /*.filter(({ id }) => id !== 74);*/
-      .sort(orderByIdComperator)
-  );
-}
-
-function generateRandomLookUpValue(len: number): number {
-  return Math.floor(Math.random() * len);
-}
-
-function generateDataSetup(len: number): [Array<HasId>, number] {
-  const arr = generateRandomSortedArray(len);
-  return [arr, arr[generateRandomLookUpValue(len)].id];
-}
-
-function generateSearchSetup(arr: Array<HasId>, lookUpValue: number) {
-  return {
-    binarySearch: setupBinarySearch<HasId>(arr, getComperator(lookUpValue)),
-    linearSearch: setupLinearSearch<HasId>(
-      arr,
-      getSimpelComperator(lookUpValue)
-    ),
-    treeSearch: setupBinaryTreeSearch<HasId>(arr, orderByIdComperator, {
-      id: lookUpValue,
-    }),
-  };
-}
+/**
+ * Benchmark Setup
+ */
 
 const [TINY_ARRAY, TINY_LOOK_UP_VALUE] = generateDataSetup(10);
 const [SMALL_ARRAY, SMALL_LOOK_UP_VALUE] = generateDataSetup(100);
@@ -212,3 +143,68 @@ Deno.bench({
   baseline: true,
   fn: XLARGE.binarySearch,
 });
+
+/**
+ * Benchmark Setup Utils
+ */
+
+function setupBinarySearch<T>(
+  arr: Array<T>,
+  comperator: BoundComparator<T>
+): () => void {
+  return () => {
+    binarySearch<T>(comperator)(arr);
+  };
+}
+
+function setupLinearSearch<T>(
+  arr: Array<T>,
+  predicate: BoundPredicate<T>
+): () => void {
+  return () => {
+    arr.find(predicate);
+  };
+}
+
+function setupBinaryTreeSearch<T>(
+  arr: Array<T>,
+  comparator: Comparator<T>,
+  value: T
+): () => void {
+  const tree = BinarySearchTree.from<T>(arr, { compare: comparator });
+  return () => {
+    tree.find(value);
+  };
+}
+
+function generateRandomSortedArray(len: number): Array<HasId> {
+  return Array(len)
+    .fill(1)
+    .map((v, i) => ({ id: Math.floor(Math.random() * 10) * (i + v) }))
+    .sort(ascendingById);
+}
+
+function generateRandomLookUpValue(len: number): number {
+  return Math.floor(Math.random() * len);
+}
+
+function generateDataSetup(len: number): [Array<HasId>, number] {
+  const arr = generateRandomSortedArray(len);
+  return [arr, arr[generateRandomLookUpValue(len)].id];
+}
+
+function generateSearchSetup(arr: Array<HasId>, lookUpValue: number) {
+  return {
+    binarySearch: setupBinarySearch<HasId>(
+      arr,
+      idComparatorFactory({ id: lookUpValue })
+    ),
+    linearSearch: setupLinearSearch<HasId>(
+      arr,
+      isEqualIdFactory({ id: lookUpValue })
+    ),
+    treeSearch: setupBinaryTreeSearch<HasId>(arr, ascendingById, {
+      id: lookUpValue,
+    }),
+  };
+}

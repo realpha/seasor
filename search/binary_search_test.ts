@@ -1,20 +1,13 @@
 import {
   fc,
   generateArray,
+  generateEntity,
   HasId,
   isEqualIdFactory,
-  orderByIdComperator,
+  idComparatorFactory,
+  ascendingById,
 } from "../_test_utils/mod.ts";
-import { binarySearchBy } from "./mod.ts";
-import { Ordering } from "../types/ordering.ts";
-
-function getComparator(n: number) {
-  return ({ id }: HasId) => {
-    if (id < n) return Ordering.Less;
-    if (id > n) return Ordering.Greater;
-    return Ordering.Equal;
-  };
-}
+import { binarySearch } from "./mod.ts";
 
 /*
  * TODO: Split into 3 distinc property tests
@@ -25,23 +18,22 @@ Deno.test({
     fc.assert(
       fc.property(
         generateArray(),
-        fc.integer(),
-        (arr: Array<HasId>, lookUpValue: number) => {
-          arr.sort(orderByIdComperator);
+        generateEntity(),
+        (arr: Array<HasId>, lookUpValue: HasId) => {
+          arr.sort(ascendingById);
 
           const isEqualId = isEqualIdFactory(lookUpValue);
+          const idComparator = idComparatorFactory(lookUpValue);
+
           const indexFromLinear = arr.findIndex(isEqualId);
+          const [found, at] = binarySearch<HasId>(idComparator)(arr);
 
-          const [found, index] = binarySearchBy<HasId>(
-            getComparator(lookUpValue),
-          )(arr);
-
-          if (arr.length === 0) return !found && index === 0;
+          if (arr.length === 0) return !found && at === 0;
           if (!found) return indexFromLinear === -1;
-          return found.id >= arr[index].id && index === indexFromLinear;
-        },
+          return found.id === arr[indexFromLinear].id && found === arr[at];
+        }
       ),
-      { numRuns: 1000 },
+      { numRuns: 1000 }
     );
   },
 });

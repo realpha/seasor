@@ -5,9 +5,9 @@ import {
   Ordering,
   Predicate,
 } from "./types/mod.ts";
-import { binarySearchBy } from "./search/binary_search.ts";
+import { binarySearch } from "./search/binary_search.ts";
 
-export { binarySearchBy, Ordering };
+export { binarySearch, Ordering };
 export type { BoundComparator, BoundPredicate, Comparator, Predicate };
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
@@ -28,12 +28,12 @@ if (import.meta.main) {
 
   const bsArray = arr.slice();
   const startBS = new Date().valueOf();
-  const binarySearch = binarySearchBy<{ id: number }>(({ id }) => {
+  const bs = binarySearch<{ id: number }>(({ id }) => {
     if (id < LOOK_FOR) return Ordering.Less;
     if (id > LOOK_FOR) return Ordering.Greater;
     return Ordering.Equal;
   });
-  const result1 = binarySearch(bsArray);
+  const result1 = bs(bsArray);
   const endBS = new Date().valueOf();
   console.log("BS: " + (endBS - startBS) + "ms", result1);
 
